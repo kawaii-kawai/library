@@ -11,7 +11,7 @@ template <class M> class SegmentTree {
 
     void init(const std::vector<T>& v) {
         size_ = (int)v.size();
-        log_ = cp_library::ceil_log2(size_);
+        log_ = ceil_log2(size_);
         n_ = 1 << log_;
         data_.assign(2 * n_, M::identity());
         for (int i = 0; i < size_; i++) data_[n_ + i] = v[i];

@@ -2,8 +2,6 @@
 
 #include "template.hpp"
 
-namespace cp_library {
-
 using ll = long long;
 using ull = unsigned long long;
 using ld = long double;
@@ -26,5 +24,3 @@ constexpr ld EPS = 1e-8;
 constexpr ld PI = 3.1415926535897932384626;
 constexpr std::array<int, 8> dx = {1, 0, -1, 0, 1, 1, -1, -1};
 constexpr std::array<int, 8> dy = {0, 1, 0, -1, -1, 1, 1, -1};
-
-}  // namespace cp_library

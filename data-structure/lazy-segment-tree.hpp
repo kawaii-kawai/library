@@ -17,7 +17,7 @@ template <class A> class LazySegmentTree {
 
     void init(const std::vector<T>& vec) {
         size_ = (int)vec.size();
-        log_ = cp_library::ceil_log2(size_);
+        log_ = ceil_log2(size_);
         n_ = 1 << log_;
         data_.assign(2 * n_, M::identity());
         lazy_.resize(n_);

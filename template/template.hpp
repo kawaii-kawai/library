@@ -49,19 +49,14 @@
 #include <utility>
 #include <vector>
 
-// utility
 #include "utility.hpp"
 
-// bit operation
 #include "bitop.hpp"
 
-// inout
 #include "inout.hpp"
 
-// function
 #include "func.hpp"
 
-// macro
 #include "macro.hpp"
 
 #ifdef LOCAL

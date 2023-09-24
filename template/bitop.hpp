@@ -2,15 +2,7 @@
 
 #include "template.hpp"
 
-namespace cp_library {
-
-inline int lsb(const unsigned long long& a) {
-    return a ? __builtin_ctzll(a) : 64;
-}
-inline int ctz(const unsigned long long& a) {
-    return a ? __builtin_ctzll(a) : 64;
-}
-inline int msb(const unsigned long long& a) {
+inline constexpr int msb(const unsigned long long& a) {
     return a ? 63 - __builtin_clzll(a) : -1;
 }
 inline int popcount(const unsigned long long& a) {
@@ -37,5 +29,3 @@ inline unsigned long long next_combination(int n, unsigned long long x) {
 inline constexpr int ceil_log2(unsigned long long x) {
     return x ? msb(x - 1) + 1 : 0;
 }
-
-}  // namespace cp_library

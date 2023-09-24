@@ -2,8 +2,6 @@
 
 #include "template.hpp"
 
-namespace cp_library {
-
 template <class T, class U>
 std::ostream& operator<<(std::ostream& os, const std::pair<T, U>& p) {
     os << p.first << ' ' << p.second;
@@ -91,5 +89,3 @@ class IoSetup {
         std::cerr << std::fixed << std::setprecision(15);
     }
 } iosetup;
-
-}  // namespace cp_library
