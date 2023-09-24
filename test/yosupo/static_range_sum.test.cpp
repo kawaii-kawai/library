@@ -2,7 +2,6 @@
 #include "../../template/template.hpp"
 #include "../../other/cumulativesum.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int n, q;
     cin >> n >> q;

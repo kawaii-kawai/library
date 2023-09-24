@@ -2,7 +2,6 @@
 #include "../../template/template.hpp"
 #include "../../math/enumerate-primes.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int n, a, b;
     cin >> n >> a >> b;

@@ -2,7 +2,6 @@
 #include "../../template/template.hpp"
 #include "../../graph/dijkstra.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int n, m;
     cin >> n >> m;

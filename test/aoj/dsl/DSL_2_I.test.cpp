@@ -2,7 +2,6 @@
 #include "../../../data-structure/lazy-segment-tree.hpp"
 #include "../../../template/template.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int n, q;
     cin >> n >> q;

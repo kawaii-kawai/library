@@ -2,7 +2,6 @@
 #include "../../../template/template.hpp"
 #include "../../../math/divisor.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int a, b, c;
     cin >> a >> b >> c;

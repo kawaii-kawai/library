@@ -2,7 +2,6 @@
 #include "../../../template/template.hpp"
 #include "../../../math/gcd-lcm.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     long long a, b;
     cin >> a >> b;

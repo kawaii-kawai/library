@@ -2,7 +2,6 @@
 #include "../../../template/template.hpp"
 #include "../../../math/convert-base.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     while (true) {
         int x;

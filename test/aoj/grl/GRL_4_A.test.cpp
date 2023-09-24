@@ -2,7 +2,6 @@
 #include "../../../template/template.hpp"
 #include "../../../graph/topological_sort.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int v, e;
     cin >> v >> e;

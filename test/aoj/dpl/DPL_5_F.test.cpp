@@ -3,7 +3,6 @@
 #include "../../../math/binomial.hpp"
 #include "../../../math/modint.hpp"
 using namespace std;
-using namespace cp_library;
 using mint = modint1000000007;
 using comb = Binomial<mint>;
 int main() {

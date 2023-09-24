@@ -2,7 +2,6 @@
 #include "../../../template/template.hpp"
 #include "../../../math/prime-factorize.hpp"
 using namespace std;
-using namespace cp_library;
 int main() {
     int n;
     cin >> n;
