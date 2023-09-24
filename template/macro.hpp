@@ -2,6 +2,8 @@
 
 #include "template.hpp"
 
+namespace cp_library {
+
 #define OVERLOAD5(a, b, c, d, e, ...) e
 #define REP1(b) for (ll _i = 0; _i < (ll)(b); _i++)
 #define REP2(i, b) for (ll i = 0; i < (ll)(b); i++)
@@ -18,3 +20,5 @@
 
 #define ALL(x) std::begin(x), std::end(x)
 #define RALL(x) std::rbegin(x), std::rend(x)
+
+}  // namespace cp_library

@@ -49,10 +49,24 @@
 #include <utility>
 #include <vector>
 
-#include "alias.hpp"
+// utility
+#include "utility.hpp"
 
+// bit operation
 #include "bitop.hpp"
 
+// inout
+#include "inout.hpp"
+
+// function
 #include "func.hpp"
 
+// macro
 #include "macro.hpp"
+
+#ifdef LOCAL
+#include <debug_print.hpp>
+#define debug(...) debug_print::multi_print(#__VA_ARGS__, __VA_ARGS__)
+#else
+#define debug(...) (static_cast<void>(0))
+#endif
