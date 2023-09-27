@@ -1,67 +1,39 @@
 #pragma once
 
-#include <algorithm>
-#include <array>
-#include <bitset>
-#include <cassert>
-#include <cctype>
-#include <cfenv>
-#include <cfloat>
-#include <chrono>
-#include <cinttypes>
-#include <climits>
-#include <cmath>
-#include <complex>
-#include <cstdarg>
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <deque>
-#include <fstream>
-#include <functional>
-#include <initializer_list>
-#include <iomanip>
-#include <ios>
-#include <iostream>
-#include <istream>
-#include <iterator>
-#include <limits>
-#include <list>
-#include <map>
-#include <memory>
-#include <new>
-#include <numeric>
-#include <ostream>
-#include <queue>
-#include <random>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <streambuf>
-#include <string>
-#include <tuple>
-#include <type_traits>
-#include <typeinfo>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#include <bits/stdc++.h>
 
-#include "utility.hpp"
+using ll = long long;
+using ull = unsigned long long;
+using ld = long double;
+template <class T> using prique = std::priority_queue<T>;
+template <class T>
+using prique_rev = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 
-#include "bitop.hpp"
+#define rep(i, a) for (ll i = 0; i < (ll)(a); i++)
+#define reps(i, a, b) for (ll i = (ll)(a); i < (ll)(b); i++)
+#define rrep(i, a) for (ll i = (ll)(a)-1; i >= 0; i--)
 
-#include "inout.hpp"
+#define ALL(x) std::begin(x), std::end(x)
+#define RALL(x) std::rbegin(x), std::rend(x)
 
-#include "func.hpp"
+template <class T> constexpr T INF = std::numeric_limits<T>::max() / 2;
+constexpr ld EPS = 1e-8;
+constexpr std::array<int, 8> dx = {1, 0, -1, 0, 1, 1, -1, -1};
+constexpr std::array<int, 8> dy = {0, 1, 0, -1, -1, 1, 1, -1};
 
-#include "macro.hpp"
+template <class T, class U> inline constexpr bool chmin(T& x, U y) {
+    return (y < x) ? (x = y, true) : (false);
+}
+template <class T, class U> inline constexpr bool chmax(T& x, U y) {
+    return (x < y) ? (x = y, true) : (false);
+}
 
-#ifdef LOCAL
-#include <debug_print.hpp>
-#define debug(...) debug_print::multi_print(#__VA_ARGS__, __VA_ARGS__)
-#else
-#define debug(...) (static_cast<void>(0))
-#endif
+class IoSetup {
+  public:
+    IoSetup() {
+        std::cin.tie(nullptr);
+        std::ios::sync_with_stdio(false);
+        std::cout << std::fixed << std::setprecision(15);
+        std::cerr << std::fixed << std::setprecision(15);
+    }
+} iosetup;
