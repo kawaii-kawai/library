@@ -45,7 +45,7 @@ template <class T> class BinaryIndexedTree {
     // data[k]
     inline T operator[](int k) const { return sum(k + 1) - sum(k); }
 
-    // sum of [0, k] >= w
+    // sum of [0, k) >= w
     int lower_bound(T w) {
         if (w <= 0) return 0;
         int x = 0;
@@ -55,10 +55,10 @@ template <class T> class BinaryIndexedTree {
                 x += k;
             }
         }
-        return x;
+        return x + 1;
     }
 
-    // sum of [0, k] > w
+    // sum of [0, k) > w
     int upper_bound(T w) {
         if (w < 0) return 0;
         int x = 0;
@@ -68,6 +68,6 @@ template <class T> class BinaryIndexedTree {
                 x += k;
             }
         }
-        return x;
+        return x + 1;
     }
 };
