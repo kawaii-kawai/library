@@ -15,6 +15,7 @@ template <class T = int> struct Graph {
     std::vector<std::vector<Edge<T>>> g;
     int es;
 
+    Graph() = default;
     Graph(int sz) : g(sz), es(0) {}
 
     int size() const { return (int)(g.size()); }
