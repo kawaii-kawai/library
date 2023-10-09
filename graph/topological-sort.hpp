@@ -4,13 +4,13 @@
 #include <queue>
 
 template <class T> std::vector<int> topological_sort(const Graph<T>& g) {
-    const int N = g.size();
-    std::vector<int> deg(N);
-    for (int i = 0; i < N; i++) {
+    const int n = g.size();
+    std::vector<int> deg(n);
+    for (int i = 0; i < n; i++) {
         for (const auto& e : g[i]) deg[e.to]++;
     }
     std::queue<int> que;
-    for (int i = 0; i < N; i++) {
+    for (int i = 0; i < n; i++) {
         if (deg[i] == 0) que.push(i);
     }
     std::vector<int> res;
@@ -23,6 +23,6 @@ template <class T> std::vector<int> topological_sort(const Graph<T>& g) {
             if (deg[e.to] == 0) que.push(e.to);
         }
     }
-    if ((int)res.size() != N) return {};
+    if ((int)res.size() != n) return {};
     return res;
 }

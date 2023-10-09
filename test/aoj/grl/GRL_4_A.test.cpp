@@ -1,6 +1,6 @@
 #define PROBLEM "https://onlinejudge.u-aizu.ac.jp/problems/GRL_4_A"
 #include "../../../template/template.hpp"
-#include "../../../graph/topological_sort.hpp"
+#include "../../../graph/topological-sort.hpp"
 using namespace std;
 int main() {
     int v, e;
