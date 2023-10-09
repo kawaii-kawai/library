@@ -1,101 +1,101 @@
 #pragma once
 
-#include "../other/monoid.hpp"
+#include <vector>
 #include "../template/bitop.hpp"
 
-template <class M> class SegmentTree {
+template <class S, S (*op)(S, S), S (*e)()>
+class SegmentTree {
   private:
-    using T = typename M::value_type;
     int n_, size_, log_;
-    std::vector<T> data_;
+    std::vector<S> data_;
 
-    void init(const std::vector<T>& v) {
-        size_ = (int)v.size();
+    void init(const std::vector<S>& vec) {
+        size_ = (int)(vec.size());
         log_ = ceil_log2(size_);
         n_ = 1 << log_;
-        data_.assign(2 * n_, M::identity());
-        for (int i = 0; i < size_; i++) data_[n_ + i] = v[i];
-        for (int i = n_ - 1; i >= 1; i--) {
-            data_[i] = M::op(data_[2 * i], data_[2 * i + 1]);
-        }
+        data_.assign(2 * n_, e());
+        for (int i = 0; i < size_; i++) data_[n_ + i] = vec[i];
+        for (int i = n_ - 1; i >= 1; i--) update(i);
     }
 
-    void update(int k) { data_[k] = M::op(data_[2 * k], data_[2 * k + 1]); }
+    void update(int k) { data_[k] = op(data_[2 * k], data_[2 * k + 1]); }
 
   public:
-    SegmentTree() : SegmentTree(0) {}
-    SegmentTree(int sz) : SegmentTree(std::vector<T>(sz, M::identity())) {}
-    SegmentTree(int sz, const T& v) : SegmentTree(std::vector<T>(sz, v)) {}
-    SegmentTree(const std::vector<T>& v) { init(v); }
+    SegmentTree() = default;
+    explicit SegmentTree(int sz) : SegmentTree(std::vector<S>(sz, e())) {}
+    explicit SegmentTree(int sz, S x) : SegmentTree(std::vector<S>(sz, x)) {}
+    explicit SegmentTree(const std::vector<S>& vec) { init(vec); }
 
-    // data[k] <- x
-    void set(int k, const T& x) {
+    void set(int k, S x) {
         k += n_;
         data_[k] = x;
         for (int i = 1; i <= log_; i++) update(k >> i);
     }
 
-    // data[k]
-    T get(int k) const { return data_[k + n_]; }
+    S get(int k) const { return data_[k + n_]; }
 
-    // op(data[l], ..., data[r - 1])
-    T prod(int l, int r) const {
-        T sml = M::identity(), smr = M::identity();
+    S prod(int l, int r) const {
+        S sml = e(), smr = e();
         l += n_;
         r += n_;
 
         while (l < r) {
-            if (l & 1) sml = M::op(sml, data_[l++]);
-            if (r & 1) smr = M::op(data_[--r], smr);
+            if (l & 1) sml = op(sml, data_[l++]);
+            if (r & 1) smr = op(data_[--r], smr);
             l >>= 1;
             r >>= 1;
         }
-        return M::op(sml, smr);
+        return op(sml, smr);
     }
 
-    // op(data[0], ..., data[n - 1])
-    T all_prod() const { return data_[1]; }
+    S all_prod() const { return data_[1]; }
 
-    // max k s.t. f(op(data[l], ..., data[k - 1])) == true
-    template <class F> int max_right(int l, const F& f) const {
+    template <bool (*f)(S)> int max_right(int l) const {
+        return max_right(l, [](S x) { return f(x); });
+    }
+    template <class F> int max_right(int l, F f) const {
         if (l == size_) return size_;
         l += n_;
-        T sm = M::identity();
+        S sm = e();
         do {
-            while ((l & 2) == 0) l >>= 1;
-            if (!f(M::op(sm, data_[l]))) {
+            while (l % 2 == 0) l >>= 1;
+            if (!f(op(sm, data_[l]))) {
                 while (l < n_) {
                     l = (2 * l);
-                    if (f(M::op(sm, data_[l]))) {
-                        sm = M::op(sm, data_[l]);
+                    if (f(op(sm, data_[l]))) {
+                        sm = op(sm, data_[l]);
                         l++;
                     }
                 }
                 return l - n_;
             }
+            sm = op(sm, data_[l]);
             l++;
         } while ((l & -l) != l);
         return size_;
     }
 
-    // min k s.t. f(op(data[k], ..., data[r - 1])) == true
-    template <class F> int min_left(int r, const F& f) const {
+    template <bool (*f)(S)> int min_left(int r) const {
+        return min_left(r, [](S x) { return f(x); });
+    }
+    template <class F> int min_left(int r, F f) const {
         if (r == 0) return 0;
         r += n_;
-        T sm = M::identity();
+        S sm = e();
         do {
             r--;
-            while (1 < r && (r % 2)) r >>= 1;
-            if (!f(M::op(data_[r], sm))) {
+            while (r > 1 && (r % 2)) r >>= 1;
+            if (!f(op(data_[r], sm))) {
                 while (r < n_) {
                     r = (2 * r + 1);
-                    if (f(M::op(data_[r], sm))) {
-                        sm = M::op(data_[r], sm);
+                    if (f(op(data_[r], sm))) {
+                        sm = op(data_[r], sm);
                         r--;
                     }
                 }
                 return r + 1 - n_;
             }
+            sm = op(data_[r], sm);
         } while ((r & -r) != r);
         return 0;
     }
