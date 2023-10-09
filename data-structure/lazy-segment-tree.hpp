@@ -1,202 +1,173 @@
 #pragma once
 
-#include "../other/monoid.hpp"
 #include "../template/bitop.hpp"
 
-template <class A> class LazySegmentTree {
+template <class S,
+          S (*op)(S, S),
+          S (*e)(),
+          class F,
+          S (*mapping)(F, S),
+          F (*composition)(F, F),
+          F (*id)()>
+class LazySegmentTree {
   private:
-    using M = typename A::M;
-    using E = typename A::E;
-    using T = typename M::value_type;
-    using U = typename E::value_type;
-
     int n_, size_, log_;
-    std::vector<T> data_;
-    std::vector<U> lazy_;
-    std::vector<bool> lazy_flag_;
+    std::vector<S> data_;
+    std::vector<F> lazy_;
 
-    void init(const std::vector<T>& vec) {
-        size_ = (int)vec.size();
+    void init(const std::vector<S> &vec) {
+        size_ = (int)(vec.size());
         log_ = ceil_log2(size_);
         n_ = 1 << log_;
-        data_.assign(2 * n_, M::identity());
-        lazy_.resize(n_);
-        lazy_flag_.assign(n_, false);
+        data_.assign(2 * n_, e());
+        lazy_.assign(n_, id());
         for (int i = 0; i < size_; i++) data_[n_ + i] = vec[i];
-        for (int i = n_ - 1; i >= 1; i--) {
-            data_[i] = M::op(data_[2 * i], data_[2 * i + 1]);
-        }
+        for (int i = n_ - 1; i >= 1; i--) update(i);
     }
 
-    void all_apply(int k, const U& x, int d) {
-        data_[k] = A::op(x, data_[k], d);
-        if (k < n_) {
-            if (lazy_flag_[k]) {
-                lazy_[k] = E::op(lazy_[k], x);
-            } else {
-                lazy_[k] = x;
-                lazy_flag_[k] = true;
-            }
-        }
+    void update(int k) { data_[k] = op(data_[2 * k], data_[2 * k + 1]); }
+
+    void all_apply(int k, F f) {
+        data_[k] = mapping(f, data_[k]);
+        if (k < n_) lazy_[k] = composition(f, lazy_[k]);
     }
 
-    void eval(int k, int d) {
-        if (lazy_flag_[k]) {
-            all_apply(2 * k, lazy_[k], d >> 1);
-            all_apply(2 * k + 1, lazy_[k], d >> 1);
-            lazy_flag_[k] = false;
-        }
+    void push(int k) {
+        if (lazy_[k] == id()) return;
+        all_apply(2 * k, lazy_[k]);
+        all_apply(2 * k + 1, lazy_[k]);
+        lazy_[k] = id();
     }
-
-    void calc(int k) { data_[k] = M::op(data_[2 * k], data_[2 * k + 1]); }
-
+  
   public:
-    LazySegmentTree() : LazySegmentTree(0) {}
-    LazySegmentTree(int sz)
-        : LazySegmentTree(std::vector<T>(sz, M::identity())) {}
-    LazySegmentTree(int sz, const T& v)
-        : LazySegmentTree(std::vector<T>(sz, v)) {}
-    LazySegmentTree(const std::vector<T>& vec) { init(vec); }
+    LazySegmentTree() = default;
+    explicit LazySegmentTree(int sz) : LazySegmentTree(std::vector<S>(sz, e())) {}
+    explicit LazySegmentTree(int sz, S x) : LazySegmentTree(std::vector<S>(sz, x)) {}
+    explicit LazySegmentTree(const std::vector<S> &vec) { init(vec); }
 
-    // op(data[l], ..., data[r - 1])
-    T prod(int l, int r) {
-        if (l == r) return M::identity();
-        l += n_, r += n_;
-        for (int i = log_; i >= 1; i--) {
-            bool seen = false;
-            if (((l >> i) << i) != l) eval(l >> i, 1 << i), seen = true;
-            if (((r >> i) << i) != r) eval((r - 1) >> i, 1 << i), seen = true;
-            if (!seen) break;
-        }
-
-        T lsm = M::identity(), rsm = M::identity();
-        while (l != r) {
-            if (l & 1) lsm = M::op(lsm, data_[l++]);
-            if (r & 1) rsm = M::op(data_[--r], rsm);
-            l >>= 1, r >>= 1;
-        }
-        return M::op(lsm, rsm);
+    void set(int k, S x) {
+        k += n_;
+        for (int i = log_; i >= 1; i--) push(k >> i);
+        data_[k] = x;
+        for (int i = 1; i <= log_; i++) update(k >> i);
     }
 
-    // data[k]
-    T get(int k) {
+    S get(int k) {
         k += n_;
-        for (int i = log_; i >= 1; i--) eval(k >> i, 1 << i);
+        for (int i = log_; i >= 1; i--) push(k >> i);
         return data_[k];
     }
 
-    // op(data[0], ..., data[n - 1])
-    T all_prod() { return data_[1]; }
+    S prod(int l, int r) {
+        if (l == r) return e();
 
-    // apply x to op(data[l], ..., data[r - 1])
-    void apply(int l, int r, const T& x) {
-        if (l == r) return;
+        l += n_;
+        r += n_;
 
-        l += n_, r += n_;
         for (int i = log_; i >= 1; i--) {
-            if (((l >> i) << i) != l) eval(l >> i, 1 << i);
-            if (((r >> i) << i) != r) eval((r - 1) >> i, 1 << i);
+            if (((l >> i) << i) != l) push(l >> i);
+            if (((r >> i) << i) != r) push((r - 1) >> i);
         }
 
-        for (int l2 = l, r2 = r, d = 1; l2 != r2; l2 >>= 1, r2 >>= 1, d <<= 1) {
-            if (l2 & 1) all_apply(l2++, x, d);
-            if (r2 & 1) all_apply(--r2, x, d);
+        S sml = e(), smr = e();
+        while (l < r) {
+            if (l & 1) sml = op(sml, data_[l++]);
+            if (r & 1) smr = op(data_[--r], smr);
+            l >>= 1;
+            r >>= 1;
+        }
+
+        return op(sml, smr);
+    }
+
+    S all_prod() { return data_[1]; }
+
+    void apply(int k, F f) {
+        k += n_;
+        for (int i = log_; i >= 1; i--) push(k >> i);
+        data_[k] = mapping(f, data_[k]);
+        for (int i = 1; i <= log_; i++) update(k >> i);
+    }
+
+    void apply(int l, int r, F f) {
+        if (l == r) return;
+
+        l += n_;
+        r += n_;
+
+        for (int i = log_; i >= 1; i--) {
+            if (((l >> i) << i) != l) push(l >> i);
+            if (((r >> i) << i) != r) push((r - 1) >> i);
+        }
+
+        {
+            int l2 = l, r2 = r;
+            while (l < r) {
+                if (l & 1) all_apply(l++, f);
+                if (r & 1) all_apply(--r, f);
+                l >>= 1;
+                r >>= 1;
+            }
+            l = l2;
+            r = r2;
         }
 
         for (int i = 1; i <= log_; i++) {
-            if (((l >> i) << i) != l) calc(l >> i);
-            if (((r >> i) << i) != r) calc((r - 1) >> i);
+            if (((l >> i) << i) != l) update(l >> i);
+            if (((r >> i) << i) != r) update((r - 1) >> i);
         }
     }
 
-    // max k s.t. f(op(data[l], ..., data[k - 1])) == true
-    template <class F> int max_right(int l, const F& f) const {
+    template <bool (*g)(S)> int max_right(int l) {
+        return max_right(l, [](S x) { return g(x); });
+    }
+    template <class G> int max_right(int l, G g) {
         if (l == size_) return size_;
         l += n_;
-        for (int i = log_; i >= 1; i--) {
-            if (((l >> i) << i) != l)
-                eval(l >> i, 1 << i);
-            else
-                break;
-        }
-
-        T sm = M::identity();
-        int d = 1;
+        for (int i = log_; i >= 1; i--) push(l >> i);
+        S sm = e();
         do {
-            while ((l & 1) == 0) l >>= 1, d <<= 1;
-            if (!f(M::op(sm, data_[l]))) {
+            while (l % 2 == 0) l >>= 1;
+            if (!g(op(sm, data_[l]))) {
                 while (l < n_) {
-                    eval(l, d);
-                    l <<= 1;
-                    d >>= 1;
-                    if (f(M::op(sm, data_[l]))) sm = M::op(sm, data_[l++]);
+                    push(l);
+                    l = 2 * l;
+                    if (g(op(sm, data_[l]))) {
+                        sm = op(sm, data_[l]);
+                        l++;
+                    }
                 }
+                return l - n_;
             }
-            sm = M::op(sm, data_[l++]);
+            sm = op(sm, data_[l]);
+            l++;
         } while ((l & -l) != l);
         return size_;
     }
 
-    // min k s.t. f(op(data[k], ..., data[r - 1])) == true
-    template <class F> int min_left(int r, const F& f) const {
+    template <bool (*g)(S)> int min_left(int r) {
+        return min_left(r, [](S x) { return g(x); });
+    }
+    template <class G> int min_left(int r, G g) {
         if (r == 0) return 0;
-
         r += n_;
-        for (int i = log_; i >= 1; i--) {
-            if (((r >> i) << i) != r)
-                eval((r - 1) >> i, 1 << i);
-            else
-                break;
-        }
-
-        T sm = M::identity();
-        int d = 1;
+        for (int i = log_; i >= 1; i--) push((r - 1) >> i);
+        S sm = e();
         do {
             r--;
-            while ((r & 1) && r > 1) r >>= 1, d <<= 1;
-            if (!f(data_[r], sm)) {
+            while (r > 1 && (r % 2)) r >>= 1;
+            if (!g(op(data_[r], sm))) {
                 while (r < n_) {
-                    eval(r, n_);
+                    push(r);
                     r = 2 * r + 1;
-                    d >>= 2;
-                    if (f(M::op(data_[r], sm))) sm = M::op(data_[r--], sm);
+                    if (g(op(data_[r], sm))) {
+                        sm = op(data_[r], sm);
+                        r--;
+                    }
                 }
                 return r + 1 - n_;
             }
-            sm = M::op(data_[r], sm);
         } while ((r & -r) != r);
         return 0;
     }
 };
-
-template <class T, T max_value = std::numeric_limits<T>::max()>
-using UpdateMinLazySegmentTree =
-    LazySegmentTree<Monoid::AssignMin<T, max_value>>;
-
-template <class T, T min_value = std::numeric_limits<T>::min()>
-using UpdateMaxLazySegmentTree =
-    LazySegmentTree<Monoid::AssignMax<T, min_value>>;
-
-template <class T>
-using UpdateSumLazySegmentTree = LazySegmentTree<Monoid::AssignSum<T>>;
-
-template <class T, T max_value = std::numeric_limits<T>::max()>
-using AddMinLazySegmentTree = LazySegmentTree<Monoid::AddMin<T, max_value>>;
-
-template <class T, T min_value = std::numeric_limits<T>::min()>
-using AddMaxLazySegmentTree = LazySegmentTree<Monoid::AddMax<T, min_value>>;
-
-template <class T>
-using AddSumLazySegmentTree = LazySegmentTree<Monoid::AddSum<T>>;
-
-template <class T, T max_value = std::numeric_limits<T>::max()>
-using ChminMinLazySegmentTree = LazySegmentTree<Monoid::ChminMin<T>>;
-
-template <class T, T min_value = std::numeric_limits<T>::min()>
-using ChminMaxLazySegmentTree = LazySegmentTree<Monoid::ChminMax<T>>;
-
-template <class T, T max_value = std::numeric_limits<T>::max()>
-using ChmaxMinLazySegmentTree = LazySegmentTree<Monoid::ChmaxMin<T>>;
-
-template <class T, T min_value = std::numeric_limits<T>::min()>
-using ChmaxMaxLazySegmentTree = LazySegmentTree<Monoid::ChmaxMax<T>>;

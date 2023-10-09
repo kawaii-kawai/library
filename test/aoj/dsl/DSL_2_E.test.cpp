@@ -1,17 +1,15 @@
-#define PROBLEM "https://onlinejudge.u-aizu.ac.jp/courses/library/3/DSL/2/DSL_2_H"
+#define PROBLEM "https://onlinejudge.u-aizu.ac.jp/courses/library/3/DSL/2/DSL_2_E"
 #include "../../../template/template.hpp"
 #include "../../../data-structure/lazy-segment-tree.hpp"
 using namespace std;
 
 using S = long long;
 using F = long long;
-
-// range add, range min
 S op(S a, S b) { return min(a, b); }
-S e() { return 1LL << 31; }
-S mapping(F f, S x) { return x + f; }
+S e() { return (S)(2147483647); }
+S mapping(F f, S x) { return f + x; }
 F composition(F f, F g) { return f + g; }
-F id() { return 0; }
+F id() { return (F)(0); }
 
 int main() {
     int n, q;
@@ -24,11 +22,11 @@ int main() {
             int l, r;
             long long x;
             cin >> l >> r >> x;
-            seg.apply(l, r + 1, x);
+            seg.apply(l - 1, r, x);
         } else {
-            int l, r;
-            cin >> l >> r;
-            cout << seg.prod(l, r + 1) << endl;
+            int k;
+            cin >> k;
+            cout << seg.get(k - 1) << endl;
         }
     }
 }
