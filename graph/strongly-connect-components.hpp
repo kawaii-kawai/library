@@ -1,6 +1,6 @@
 #pragma once
 
-#include "library/graph/graph-template.hpp"
+#include "graph-template.hpp"
 
 #include <algorithm>
 
