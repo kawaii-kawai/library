@@ -24,8 +24,8 @@ template <class T> class BinaryIndexedTree {
 
   public:
     BinaryIndexedTree() = default;
-    BinaryIndexedTree(int sz) { init(sz); }
-    BinaryIndexedTree(std::vector<T> vec) {
+    explicit BinaryIndexedTree(int sz) { init(sz); }
+    explicit BinaryIndexedTree(std::vector<T> vec) {
         init(vec.size());
         for (int i = 0; i < size_; i++) add(i, vec[i]);
     }
