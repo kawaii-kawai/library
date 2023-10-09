@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "../template/bitop.hpp"
 
 template <class S,
@@ -15,7 +16,7 @@ class LazySegmentTree {
     std::vector<S> data_;
     std::vector<F> lazy_;
 
-    void init(const std::vector<S> &vec) {
+    void init(const std::vector<S>& vec) {
         size_ = (int)(vec.size());
         log_ = ceil_log2(size_);
         n_ = 1 << log_;
@@ -38,12 +39,14 @@ class LazySegmentTree {
         all_apply(2 * k + 1, lazy_[k]);
         lazy_[k] = id();
     }
-  
+
   public:
     LazySegmentTree() = default;
-    explicit LazySegmentTree(int sz) : LazySegmentTree(std::vector<S>(sz, e())) {}
-    explicit LazySegmentTree(int sz, S x) : LazySegmentTree(std::vector<S>(sz, x)) {}
-    explicit LazySegmentTree(const std::vector<S> &vec) { init(vec); }
+    explicit LazySegmentTree(int sz)
+        : LazySegmentTree(std::vector<S>(sz, e())) {}
+    explicit LazySegmentTree(int sz, S x)
+        : LazySegmentTree(std::vector<S>(sz, x)) {}
+    explicit LazySegmentTree(const std::vector<S>& vec) { init(vec); }
 
     void set(int k, S x) {
         k += n_;
