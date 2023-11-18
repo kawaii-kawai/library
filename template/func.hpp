@@ -9,6 +9,16 @@ template <class T, class U> inline constexpr bool chmax(T& x, U y) {
     return (x < y) ? (x = y, true) : (false);
 }
 
+inline constexpr long long Pow(long long a, long long b) {
+    long long res = 1;
+    while (b > 0) {
+        if (b & 1) res *= a;
+        a *= a;
+        b >>= 1;
+    }
+    return res;
+}
+
 template <class T> inline constexpr T Max(const std::vector<T>& vec) {
     return *std::max_element(vec.begin(), vec.end());
 }
